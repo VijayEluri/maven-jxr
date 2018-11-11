@@ -27,7 +27,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -240,15 +239,12 @@ public class DirectoryIndexer
         doVelocity( "allclasses-frame", root, context, engine );
         doVelocity( "overview-summary", root, context, engine );
 
-        Iterator<Map<String, ?>> iter = ( (Map) info.get( "allPackages" ) ).values().iterator();
-        while ( iter.hasNext() )
+        for ( PackageInfo pkgInfo : ( (Map<String, PackageInfo>) info.get( "allPackages" ) ).values() )
         {
-            Map pkgInfo = iter.next();
-
             VelocityContext subContext = new VelocityContext( context );
             subContext.put( "pkgInfo", pkgInfo );
 
-            String outDir = root + '/' + pkgInfo.get( "dir" );
+            String outDir = root + '/' + pkgInfo.getDir();
             doVelocity( "package-summary", outDir, subContext, engine );
             doVelocity( "package-frame", outDir, subContext, engine );
         }
@@ -333,7 +329,7 @@ public class DirectoryIndexer
      */
     Map<String, Map<String, ?>> getPackageInfo()
     {
-        Map<String, Map<String, Object>> allPackages = new TreeMap<>();
+        Map<String, PackageInfo> allPackages = new TreeMap<>();
         Map<String, ClassInfo> allClasses = new TreeMap<>();
 
         Enumeration<PackageType> packages = packageManager.getPackageTypes();
@@ -361,7 +357,9 @@ public class DirectoryIndexer
 
                 String className = clazz.getName();
                 
-                ClassInfo classInfo = new ClassInfo( className, pkgDir, clazz.getFilename() );
+                ClassInfo classInfo = new ClassInfo( className, pkgDir );
+                
+                classInfo.setFilename( clazz.getFilename() );
 
                 pkgClasses.put( className, classInfo );
                 
@@ -370,11 +368,10 @@ public class DirectoryIndexer
                 allClasses.put( className + "#" + pkgName, classInfo );
             }
 
-            Map<String, Object> pkgInfo = new HashMap<>();
-            pkgInfo.put( "name", pkgName );
-            pkgInfo.put( "dir", pkgDir );
-            pkgInfo.put( "classes", pkgClasses );
-            pkgInfo.put( "rootRef", rootRef );
+            PackageInfo pkgInfo = new PackageInfo( pkgName, pkgDir );
+            pkgInfo.setClasses( pkgClasses );
+            pkgInfo.setRootRef( rootRef );
+
             allPackages.put( pkgName, pkgInfo );
         }
 
@@ -386,25 +383,24 @@ public class DirectoryIndexer
     }
     
     /**
-     * Holds class information
      * 
      * @author Robert Scholte
      * @since 3.2.0
      */
-    public static class ClassInfo
+    public static class PackageInfo
     {
-        private String name;
+        private final String name;
         
-        private String dir;
-        
-        private String filename;
+        private final String dir;
 
-        public ClassInfo( String name, String dir, String filename )
+        Map<String, ClassInfo> classes;
+        
+        private String rootRef;
+        
+        public PackageInfo( String name, String dir )
         {
-            super();
             this.name = name;
             this.dir = dir;
-            this.filename = filename;
         }
         
         public String getName()
@@ -415,6 +411,63 @@ public class DirectoryIndexer
         public String getDir()
         {
             return dir;
+        }
+        
+        public void setClasses( Map<String, ClassInfo> classes )
+        {
+            this.classes = classes;
+        }
+        
+        public Map<String, ClassInfo> getClasses()
+        {
+            return classes;
+        }
+        
+        public void setRootRef( String rootRef )
+        {
+            this.rootRef = rootRef;
+        }
+        
+        public String getRootRef()
+        {
+            return rootRef;
+        }
+    }
+    
+    /**
+     * Holds class information
+     * 
+     * @author Robert Scholte
+     * @since 3.2.0
+     */
+    public static class ClassInfo
+    {
+        private final String name;
+        
+        private final String dir;
+        
+        private String filename;
+
+        public ClassInfo( String name, String dir )
+        {
+            super();
+            this.name = name;
+            this.dir = dir;
+        }
+        
+        public String getName()
+        {
+            return name;
+        }
+        
+        public String getDir()
+        {
+            return dir;
+        }
+        
+        public void setFilename( String filename )
+        {
+            this.filename = filename;
         }
         
         public String getFilename()
