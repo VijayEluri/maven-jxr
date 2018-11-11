@@ -44,7 +44,7 @@ public class DirectoryIndexerTest {
     {
         FileManager fileManager = FileManager.getInstance();
         PackageManager packageManager = new PackageManager( new DummyLog(), fileManager );
-        packageManager.process(Paths.get( "src/test/resources/jxr68" ));
+        packageManager.process( Paths.get( "src/test/resources/jxr68" ) );
         DirectoryIndexer directoryIndexer = new DirectoryIndexer( packageManager, "" );
 
         ProjectInfo packageInfo = directoryIndexer.getProjectInfo();
@@ -53,7 +53,7 @@ public class DirectoryIndexerTest {
         assertTrue( allPackages.containsKey( "(default package)" ) );
         assertTrue( allPackages.containsKey( "pkga" ) );
         assertTrue( allPackages.containsKey( "pkgb" ) );
-        final Map<String, ClassInfo> allClasses = (Map<String, ClassInfo>) packageInfo.getAllClasses();
+        final Map<String, ClassInfo> allClasses = packageInfo.getAllClasses();
         assertEquals( 6, allClasses.size() );
         final Iterator<ClassInfo> iterator = allClasses.values().iterator();
         // #1: AClass
