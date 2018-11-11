@@ -334,7 +334,7 @@ public class DirectoryIndexer
     Map<String, Map<String, ?>> getPackageInfo()
     {
         Map<String, Map<String, Object>> allPackages = new TreeMap<>();
-        Map<String, Map<String, String>> allClasses = new TreeMap<>();
+        Map<String, ClassInfo> allClasses = new TreeMap<>();
 
         Enumeration<PackageType> packages = packageManager.getPackageTypes();
         while ( packages.hasMoreElements() )
@@ -353,26 +353,18 @@ public class DirectoryIndexer
                 rootRef = "./";
             }
 
-            Map<String, Map<String, String>> pkgClasses = new TreeMap<>();
+            Map<String, ClassInfo> pkgClasses = new TreeMap<>();
             Enumeration<ClassType> classes = pkg.getClassTypes();
             while ( classes.hasMoreElements() )
             {
                 ClassType clazz = classes.nextElement();
 
                 String className = clazz.getName();
-                Map<String, String> classInfo = new HashMap<>();
-                if ( clazz.getFilename() != null )
-                {
-                    classInfo.put( "filename", clazz.getFilename() );
-                }
-                else
-                {
-                    classInfo.put( "filename", "" );
-                }
-                classInfo.put( "name", className );
-                classInfo.put( "dir", pkgDir );
+                
+                ClassInfo classInfo = new ClassInfo( className, pkgDir, clazz.getFilename() );
 
                 pkgClasses.put( className, classInfo );
+                
                 // Adding package name to key in order to ensure classes with identical names in different packages are
                 // all included.
                 allClasses.put( className + "#" + pkgName, classInfo );
@@ -391,5 +383,43 @@ public class DirectoryIndexer
         info.put( "allClasses", allClasses );
 
         return info;
+    }
+    
+    /**
+     * Holds class information
+     * 
+     * @author Robert Scholte
+     * @since 3.2.0
+     */
+    public static class ClassInfo
+    {
+        private String name;
+        
+        private String dir;
+        
+        private String filename;
+
+        public ClassInfo( String name, String dir, String filename )
+        {
+            super();
+            this.name = name;
+            this.dir = dir;
+            this.filename = filename;
+        }
+        
+        public String getName()
+        {
+            return name;
+        }
+        
+        public String getDir()
+        {
+            return dir;
+        }
+        
+        public String getFilename()
+        {
+            return filename;
+        }
     }
 }

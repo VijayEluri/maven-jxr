@@ -1,5 +1,7 @@
 package org.apache.maven.jxr;
 
+import org.apache.maven.jxr.DirectoryIndexer.ClassInfo;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -49,27 +51,27 @@ public class DirectoryIndexerTest {
         assertTrue( allPackages.containsKey( "(default package)" ) );
         assertTrue( allPackages.containsKey( "pkga" ) );
         assertTrue( allPackages.containsKey( "pkgb" ) );
-        final Map<String, Map<String, String>> allClasses = (Map<String, Map<String, String>>) packageInfo.get( "allClasses" );
+        final Map<String, ClassInfo> allClasses = (Map<String, ClassInfo>) packageInfo.get( "allClasses" );
         assertEquals( 6, allClasses.size() );
-        final Iterator<Map<String, String>> iterator = allClasses.values().iterator();
+        final Iterator<ClassInfo> iterator = allClasses.values().iterator();
         // #1: AClass
-        assertEquals( "AClass", iterator.next().get( "name" ) );
+        assertEquals( "AClass", iterator.next().getName() );
         // #2: BClass
-        assertEquals( "BClass", iterator.next().get( "name" ) );
+        assertEquals( "BClass", iterator.next().getName() );
         // #3: CClass
-        assertEquals( "CClass", iterator.next().get( "name" ) );
+        assertEquals( "CClass", iterator.next().getName() );
         // #4: SomeClass in default package
-        Map<String, String> classInfo = iterator.next();
-        assertEquals( "SomeClass", classInfo.get( "name" ) );
-        assertEquals( ".", classInfo.get( "dir" ) );
+        ClassInfo classInfo = iterator.next();
+        assertEquals( "SomeClass", classInfo.getName() );
+        assertEquals( ".", classInfo.getDir() );
         // #5: SomeClass in "pkga"
         classInfo = iterator.next();
-        assertEquals( "SomeClass", classInfo.get( "name" ) );
-        assertEquals( "pkga", classInfo.get( "dir" ) );
+        assertEquals( "SomeClass", classInfo.getName() );
+        assertEquals( "pkga", classInfo.getDir() );
         // #6: SomeClass in "pkgb"
         classInfo = iterator.next();
-        assertEquals( "SomeClass", classInfo.get( "name" ) );
-        assertEquals( "pkgb", classInfo.get( "dir" ) );
+        assertEquals( "SomeClass", classInfo.getName() );
+        assertEquals( "pkgb", classInfo.getDir() );
     }
 
 }
