@@ -1,6 +1,8 @@
 package org.apache.maven.jxr;
 
 import org.apache.maven.jxr.DirectoryIndexer.ClassInfo;
+import org.apache.maven.jxr.DirectoryIndexer.PackageInfo;
+import org.apache.maven.jxr.DirectoryIndexer.ProjectInfo;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -45,13 +47,13 @@ public class DirectoryIndexerTest {
         packageManager.process(Paths.get( "src/test/resources/jxr68" ));
         DirectoryIndexer directoryIndexer = new DirectoryIndexer( packageManager, "" );
 
-        final Map<String, Map<String, ?>> packageInfo = directoryIndexer.getPackageInfo();
-        final Map<String, ?> allPackages = packageInfo.get( "allPackages" );
+        ProjectInfo packageInfo = directoryIndexer.getProjectInfo();
+        final Map<String, PackageInfo> allPackages = packageInfo.getAllPackages();
         assertEquals(3, allPackages.size());
         assertTrue( allPackages.containsKey( "(default package)" ) );
         assertTrue( allPackages.containsKey( "pkga" ) );
         assertTrue( allPackages.containsKey( "pkgb" ) );
-        final Map<String, ClassInfo> allClasses = (Map<String, ClassInfo>) packageInfo.get( "allClasses" );
+        final Map<String, ClassInfo> allClasses = (Map<String, ClassInfo>) packageInfo.getAllClasses();
         assertEquals( 6, allClasses.size() );
         final Iterator<ClassInfo> iterator = allClasses.values().iterator();
         // #1: AClass

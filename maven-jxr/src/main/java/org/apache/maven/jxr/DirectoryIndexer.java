@@ -26,7 +26,6 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -214,7 +213,7 @@ public class DirectoryIndexer
     public void process( Log log )
         throws JxrException
     {
-        Map<String, Map<String, ?>> info = getPackageInfo();
+        ProjectInfo info = getProjectInfo();
 
         VelocityEngine engine = new VelocityEngine();
         setProperties( engine, log );
@@ -239,7 +238,7 @@ public class DirectoryIndexer
         doVelocity( "allclasses-frame", root, context, engine );
         doVelocity( "overview-summary", root, context, engine );
 
-        for ( PackageInfo pkgInfo : ( (Map<String, PackageInfo>) info.get( "allPackages" ) ).values() )
+        for ( PackageInfo pkgInfo : info.getAllPackages().values() )
         {
             VelocityContext subContext = new VelocityContext( context );
             subContext.put( "pkgInfo", pkgInfo );
@@ -327,7 +326,7 @@ public class DirectoryIndexer
      * allClasses collection of Maps with class info, format as above
      *
      */
-    Map<String, Map<String, ?>> getPackageInfo()
+    ProjectInfo getProjectInfo()
     {
         Map<String, PackageInfo> allPackages = new TreeMap<>();
         Map<String, ClassInfo> allClasses = new TreeMap<>();
@@ -375,11 +374,35 @@ public class DirectoryIndexer
             allPackages.put( pkgName, pkgInfo );
         }
 
-        Map<String, Map<String, ?>> info = new HashMap<>();
-        info.put( "allPackages", allPackages );
-        info.put( "allClasses", allClasses );
+        return new ProjectInfo( allPackages, allClasses );
+    }
+    
+    /**
+     * 
+     * @author Robert Scholte
+     * @since 3.2.0
+     */
+    public static class ProjectInfo
+    {
+        private final Map<String, PackageInfo> allPackages;
+        
+        private final Map<String, ClassInfo> allClasses;
 
-        return info;
+        public ProjectInfo( Map<String, PackageInfo> allPackages, Map<String, ClassInfo> allClasses )
+        {
+            this.allPackages = allPackages;
+            this.allClasses = allClasses;
+        }
+
+        public Map<String, PackageInfo> getAllPackages()
+        {
+            return allPackages;
+        }
+        
+        public Map<String, ClassInfo> getAllClasses()
+        {
+            return allClasses;
+        }
     }
     
     /**
